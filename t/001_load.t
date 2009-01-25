@@ -13,7 +13,7 @@ is($ga->channel(24), 24, "channel");
 is($ga->ful, 894.8, "ful");
 is($ga->fdl, 939.8, "fdl");
 is($ga->band, "GSM-900", "band");
-is($ga->bw, 0.2, "bw");
+is($ga->cs, 0.2, "cs");
 is($ga->fs, 45, "fs");
 is($ga->bpi, "GSM-1900", "bpi");
 
@@ -23,7 +23,7 @@ is($ga->channel, 24, "channel");
 is($ga->ful, 894.8, "ful");
 is($ga->fdl, 939.8, "fdl");
 is($ga->band, "GSM-900", "band");
-is($ga->bw, 0.2, "bw");
+is($ga->cs, 0.2, "cs");
 is($ga->fs, 45, "fs");
 is($ga->bpi, "GSM-1900", "bpi");
 
@@ -33,7 +33,7 @@ is($ga->channel, 24, "channel");
 is($ga->ful, 894.8, "ful");
 is($ga->fdl, 939.8, "fdl");
 is($ga->band, "GSM-900", "band");
-is($ga->bw, 0.2, "bw");
+is($ga->cs, 0.2, "cs");
 is($ga->fs, 45, "fs");
 is($ga->bpi, "GSM-1900", "bpi");
 
@@ -43,7 +43,7 @@ is($ga->channel, 24, "channel");
 is($ga->ful, 894.8, "ful");
 is($ga->fdl, 939.8, "fdl");
 is($ga->band, "GSM-900", "band");
-is($ga->bw, 0.2, "bw");
+is($ga->cs, 0.2, "cs");
 is($ga->fs, 45, "fs");
 is($ga->bpi, "GSM-1800", "bpi");
 
@@ -53,6 +53,6 @@ is($ga->channel, 900, "channel");
 is($ga->ful, undef, "ful");
 is($ga->fdl, undef, "fdl");
 is($ga->band, "", "band");
-is($ga->bw, undef, "bw");
+is($ga->cs, undef, "cs");
 is($ga->fs, undef, "fs");
 

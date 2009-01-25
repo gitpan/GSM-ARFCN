@@ -1,6 +1,6 @@
 package GSM::ARFCN;
 use strict;
-our $VERSION ='0.03';
+our $VERSION ='0.04';
 
 =head1 NAME
 
@@ -29,9 +29,10 @@ Looping without blessing a new object each time
 
   use GSM::ARFCN;
   my $ga=GSM::ARFCN->new;
-  foreach my $channel (0..124,128..251,259..293,306..340,350..425,438..511,512..885,955..1023) {
+  foreach my $channel (0 .. 1023) {
     $ga->channel($channel);  #sets channel and recalculates the object properties
-    printf "Channel: %s;\tBand: %s\tUplink: %s MHz,\tDownlink: %s MHz\n", $ga->channel, $ga->band, $ga->ful, $ga->fdl;
+    printf "Channel: %s;\tBand: %s\tUplink: %s MHz,\tDownlink: %s MHz\n", $ga->channel, $ga->band, $ga->ful, $ga->fdl
+      if $ga->band;
   }
 
 =head1 CONSTRUCTOR
@@ -41,7 +42,7 @@ Looping without blessing a new object each time
   my $obj=GSM::ARFCN->new;                                  #blesses empty object; no channel set
   my $obj=GSM::ARFCN->new(24);                              #default bpi=>"GSM-1900"
   my $obj=GSM::ARFCN->new(channel=>24);                     #default bpi=>"GSM-1900"
-  my $obj=GSM::ARFCN->new(channel=>24, bpi=>"GSM-1800");    #specifiy band plan indicator
+  my $obj=GSM::ARFCN->new(channel=>24, bpi=>"GSM-1800");    #specify band plan indicator
 
 =cut
 
@@ -68,71 +69,71 @@ sub initialize {
 sub calculate {
   my $self=shift;
   my $n=$self->channel;
-  my $bw=$self->{'bw'}=0.2;
+  my $cs=$self->{'cs'}=0.2;
   if ($n ==0) {
     $self->{"band"}="EGSM-900";
     $self->{"fs"}=45;
-    $self->{"ful"}=890 + $bw * $n;
+    $self->{"ful"}=890 + $cs * $n;
 
   } elsif ($n >= 1   and $n <= 124) {
     $self->{"band"}="GSM-900";
     $self->{"fs"}=45;
-    $self->{"ful"}=890 + $bw * $n;
+    $self->{"ful"}=890 + $cs * $n;
 
   } elsif ($n >= 128 and $n <= 251) {
     $self->{"band"}="GSM-850";
     $self->{"fs"}=45;
-    $self->{"ful"}=824.2 + $bw * ($n - 128);
+    $self->{"ful"}=824.2 + $cs * ($n - 128);
 
   } elsif ($n >= 259 and $n <= 293) {
     $self->{"band"}="GSM-450";
     $self->{"fs"}=10;
-    $self->{"ful"}=450.6 + $bw * ($n - 259);
+    $self->{"ful"}=450.6 + $cs * ($n - 259);
 
   } elsif ($n >= 306 and $n <= 340) {
     $self->{"band"}="GSM-480";
     $self->{"fs"}=10;
-    $self->{"ful"}=479 + $bw * ($n - 306);
+    $self->{"ful"}=479 + $cs * ($n - 306);
 
   } elsif ($n >= 350 and $n <= 425) {
     $self->{"band"}="TGSM-810";
     $self->{"fs"}=10;
-    $self->{"ful"}=806 + $bw * ($n - 350);
+    $self->{"ful"}=806 + $cs * ($n - 350);
 
   } elsif ($n >= 438 and $n <= 511) {
     $self->{"band"}="GSM-750";
     $self->{"fs"}=30;
-    $self->{"ful"}=747.2 + $bw * ($n - 438);
+    $self->{"ful"}=747.2 + $cs * ($n - 438);
 
   } elsif ($n >= 512 and $n <= 810) {
     if ($self->bpi eq "GSM-1800") {
       $self->{"band"}="GSM-1800";
       $self->{"fs"}=95;
-      $self->{"ful"}=1710.2 + $bw * ($n - 512);
+      $self->{"ful"}=1710.2 + $cs * ($n - 512);
     } else {
       $self->{"band"}="GSM-1900";
       $self->{"fs"}=80;
-      $self->{"ful"}=1850.2 + $bw * ($n - 512);
+      $self->{"ful"}=1850.2 + $cs * ($n - 512);
     }
 
   } elsif ($n >= 811 and $n <= 885) {
     $self->{"band"}="GSM-1800";
     $self->{"fs"}=95;
-    $self->{"ful"}=1710.2 + $bw * ($n - 512);
+    $self->{"ful"}=1710.2 + $cs * ($n - 512);
 
   } elsif ($n >= 955 and $n <= 974) {
     $self->{"band"}="RGSM-900";
     $self->{"fs"}=45;
-    $self->{"ful"}=890 + $bw * ($n - 1024);
+    $self->{"ful"}=890 + $cs * ($n - 1024);
 
   } elsif ($n >= 975 and $n <= 1023) {
     $self->{"band"}="EGSM-900";
     $self->{"fs"}=45;
-    $self->{"ful"}=890 + $bw * ($n - 1024);
+    $self->{"ful"}=890 + $cs * ($n - 1024);
 
   } else {
     $self->{"band"}="";
-    delete $self->{'bw'};
+    delete $self->{'cs'};
   }
   $self->{"fdl"}=$self->ful + $self->fs if $self->band;
 }
@@ -176,7 +177,14 @@ sub bpi {
 
 =head2 band
 
-Returns the GSM band for the current channel.
+Returns the GSM band for the current channel.  If the current channel is unknown by this package, this property will be false but defined.
+
+  print $ga->band;
+  if ($ga->band) {
+    #Channel is valid
+  } else {
+    #Channel is not valid
+  }
 
 =cut
 
@@ -185,9 +193,11 @@ sub band {
   return $self->{"band"};
 }
 
-=head2 ful
+=head2 ful (Frequency Uplink)
 
 Returns the channel uplink frequency in MHz.
+
+  my $frequency=$ga->ful;
 
 =cut
 
@@ -196,7 +206,7 @@ sub ful {
   return $self->{"ful"};
 }
 
-=head2 fdl
+=head2 fdl (Frequency Downlink)
 
 Returns the channel downlink frequency in MHz.
 
@@ -207,7 +217,7 @@ sub fdl {
   return $self->{"fdl"};
 }
 
-=head2 fs
+=head2 fs (Frequency Separation)
 
 Returns the frequency separation between the uplink and downlink frequencies in MHz.
 
@@ -218,15 +228,15 @@ sub fs {
   return $self->{"fs"};
 }
 
-=head2 bw
+=head2 cs (Channel Spacing)
 
-Returns the channel bandwidth in MHz.
+Returns the channel spacing in MHz.  Currently, this is always 0.2 MHz.  The actual bandwidth of the signal is 270.833 KHz.
 
 =cut
 
-sub bw {
+sub cs {
   my $self=shift;
-  return $self->{"bw"};
+  return $self->{"cs"};
 }
 
 =head1 BUGS

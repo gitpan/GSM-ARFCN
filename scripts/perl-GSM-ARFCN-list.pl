@@ -7,6 +7,7 @@ perl-GSM-ARFCN-list.pl - List all known channels with band, uplink and downlink 
 =cut
 
 use strict;
+use warnings;
 use GSM::ARFCN;
 my $ga=GSM::ARFCN->new;
 foreach my $channel (0..124,128..251,259..293,306..340,350..425,438..511,512..885,955..1023) {
